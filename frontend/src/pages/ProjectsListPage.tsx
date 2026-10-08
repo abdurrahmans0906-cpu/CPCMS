@@ -18,11 +18,11 @@ export const ProjectsListPage: React.FC = () => {
   return (
     <div>
       <Breadcrumbs items={[{ label: 'Dashboard', to: '/' }, { label: 'Projects' }]} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h1>{role === 'FACULTY' ? 'Course Projects' : 'My Enrolled Projects'}</h1>
         {role === 'FACULTY' && (
-          <Link to="/projects/new" className="btn btn-primary" style={{ textDecoration: 'none' }}>
-            Create Project
+          <Link to="/projects/new" className="btn btn-primary">
+            + Create Project
           </Link>
         )}
       </div>
@@ -49,19 +49,23 @@ export const ProjectsListPage: React.FC = () => {
                 <tr key={p.id}>
                   <td><strong>{p.course_code}</strong></td>
                   <td>
-                    <Link to={`/projects/${p.id}`}>{p.name}</Link>
+                    <Link to={`/projects/${p.id}`} style={{ fontWeight: 600 }}>
+                      {p.name}
+                    </Link>
                   </td>
                   <td>{p.semester} {p.academic_year}</td>
-                  <td>{p.team_formation_mode}</td>
+                  <td>
+                    <span style={{ textTransform: 'capitalize' }}>{p.team_formation_mode}</span>
+                  </td>
                   <td>{p.min_team_size} - {p.max_team_size} members</td>
                   {role === 'STUDENT' && (
                     <td>
                       {p.user_team_id ? (
-                        <Link to={`/teams/${p.user_team_id}`}>
+                        <Link to={`/teams/${p.user_team_id}`} style={{ fontWeight: 600 }}>
                           Team {p.user_team_number}
                         </Link>
                       ) : (
-                        <span style={{ color: 'var(--muted-text)' }}>Not formed</span>
+                        <span style={{ color: 'var(--warning-color)', fontWeight: 500 }}>Not formed</span>
                       )}
                     </td>
                   )}
@@ -69,7 +73,9 @@ export const ProjectsListPage: React.FC = () => {
                     <StatusBadge status={p.status} />
                   </td>
                   <td>
-                    <Link to={`/projects/${p.id}`}>Open</Link>
+                    <Link to={`/projects/${p.id}`} className="btn">
+                      Open
+                    </Link>
                   </td>
                 </tr>
               ))}

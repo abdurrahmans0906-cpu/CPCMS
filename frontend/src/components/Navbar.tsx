@@ -24,14 +24,27 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="top-bar">
-      <Link to="/" className="top-bar-title">CPCMS</Link>
+      <Link to="/" className="top-bar-title">
+        <span className="top-bar-logo">CP</span>
+        <span>CPCMS</span>
+      </Link>
       {user && (
         <div className="top-bar-right">
-          <span>{user.name} ({user.role})</span>
-          <Link to="/notifications" style={{ textDecoration: 'none', color: 'inherit' }}>
-            Notifications ({unreadCount})
+          <div className="user-pill">
+            <span>{user.name}</span>
+            <span className={`user-role-badge ${user.role.toLowerCase()}`}>
+              {user.role}
+            </span>
+          </div>
+
+          <Link to="/notifications" className="notif-btn">
+            <span>Notifications</span>
+            {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
           </Link>
-          <button type="button" onClick={handleLogout}>Log out</button>
+
+          <button type="button" className="logout-btn" onClick={handleLogout}>
+            Log out
+          </button>
         </div>
       )}
     </header>

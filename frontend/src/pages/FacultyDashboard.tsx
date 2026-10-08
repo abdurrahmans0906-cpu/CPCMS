@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest, SchemaProjectOut } from '../api/client';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { StatusBadge } from '../components/StatusBadge';
 
 export const FacultyDashboard: React.FC = () => {
   const { data: projects, isLoading: projectsLoading } = useQuery<SchemaProjectOut[]>({
@@ -40,43 +41,86 @@ export const FacultyDashboard: React.FC = () => {
     delayedTeams += s.delayed_teams?.length || 0;
   });
 
+  const totalProjects = projects?.length || 0;
+  const activeProjects = projects?.filter((p) => p.status === 'active').length || 0;
+
   return (
     <div>
       <Breadcrumbs items={[{ label: 'Dashboard' }]} />
       <h1>Faculty Dashboard</h1>
 
+      {/* Modern KPI Metrics Grid */}
+      <div className="metrics-grid">
+        <div className="metric-card success">
+          <span className="metric-label">Active Projects</span>
+          <span className="metric-value">{activeProjects}</span>
+          <span style={{ fontSize: '12px', color: 'var(--muted-text)' }}>Out of {totalProjects} total</span>
+        </div>
+
+        <div className={`metric-card ${pendingProposals > 0 ? 'warning' : ''}`}>
+          <span className="metric-label">Proposals Pending</span>
+          <span className="metric-value" style={{ color: pendingProposals > 0 ? 'var(--warning-color)' : 'inherit' }}>
+            {pendingProposals}
+          </span>
+          <span style={{ fontSize: '12px', color: 'var(--muted-text)' }}>Awaiting faculty review</span>
+        </div>
+
+        <div className={`metric-card ${pendingChanges > 0 ? 'warning' : ''}`}>
+          <span className="metric-label">Change Requests</span>
+          <span className="metric-value" style={{ color: pendingChanges > 0 ? 'var(--warning-color)' : 'inherit' }}>
+            {pendingChanges}
+          </span>
+          <span style={{ fontSize: '12px', color: 'var(--muted-text)' }}>CCB review required</span>
+        </div>
+
+        <div className={`metric-card ${delayedTeams > 0 ? 'danger' : 'success'}`}>
+          <span className="metric-label">Delayed Teams</span>
+          <span className="metric-value" style={{ color: delayedTeams > 0 ? 'var(--danger-color)' : 'var(--success-color)' }}>
+            {delayedTeams}
+          </span>
+          <span style={{ fontSize: '12px', color: 'var(--muted-text)' }}>
+            {delayedTeams > 0 ? 'Exceeded milestone due dates' : 'All teams on track'}
+          </span>
+        </div>
+      </div>
+
       {/* Needs Attention List */}
       <div className="panel">
-        <h2>Needs attention</h2>
+        <div className="panel-header">
+          <h2>Needs Attention</h2>
+        </div>
+
         {pendingProposals === 0 && pendingChanges === 0 && upcomingReviews === 0 && delayedTeams === 0 ? (
-          <p style={{ color: 'var(--muted-text)', margin: 0 }}>No pending tasks requiring immediate action.</p>
+          <p style={{ color: 'var(--success-color)', fontWeight: 500, margin: 0 }}>
+            Everything is up to date. No pending tasks requiring immediate action.
+          </p>
         ) : (
-          <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <ul style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {pendingProposals > 0 && (
               <li>
                 <Link to="/projects">
-                  {pendingProposals} proposal revision{pendingProposals > 1 ? 's' : ''} waiting for review
+                  <strong>{pendingProposals} proposal revision{pendingProposals > 1 ? 's' : ''}</strong> waiting for your review and approval
                 </Link>
               </li>
             )}
             {pendingChanges > 0 && (
               <li>
                 <Link to="/projects">
-                  {pendingChanges} change request{pendingChanges > 1 ? 's' : ''} awaiting review
+                  <strong>{pendingChanges} change request{pendingChanges > 1 ? 's' : ''}</strong> awaiting Change Control Board decision
                 </Link>
               </li>
             )}
             {upcomingReviews > 0 && (
               <li>
                 <Link to="/projects">
-                  {upcomingReviews} scheduled review{upcomingReviews > 1 ? 's' : ''} upcoming
+                  <strong>{upcomingReviews} scheduled review{upcomingReviews > 1 ? 's' : ''}</strong> coming up
                 </Link>
               </li>
             )}
             {delayedTeams > 0 && (
               <li style={{ color: 'var(--danger-color)' }}>
-                <Link to="/projects" style={{ color: 'var(--danger-color)' }}>
-                  {delayedTeams} team{delayedTeams > 1 ? 's' : ''} flagged as delayed on deadlines
+                <Link to="/projects" style={{ color: 'var(--danger-color)', fontWeight: 600 }}>
+                  {delayedTeams} team{delayedTeams > 1 ? 's' : ''} flagged as delayed against deadlines
                 </Link>
               </li>
             )}
@@ -86,10 +130,10 @@ export const FacultyDashboard: React.FC = () => {
 
       {/* Projects Summary Table */}
       <div className="panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="panel-header">
           <h2>Course Projects</h2>
-          <Link to="/projects/new" className="btn btn-primary" style={{ textDecoration: 'none' }}>
-            Create Project
+          <Link to="/projects/new" className="btn btn-primary">
+            + Create Project
           </Link>
         </div>
 
@@ -113,16 +157,22 @@ export const FacultyDashboard: React.FC = () => {
                 <tr key={proj.id}>
                   <td><strong>{proj.course_code}</strong></td>
                   <td>
-                    <Link to={`/projects/${proj.id}`}>{proj.name}</Link>
+                    <Link to={`/projects/${proj.id}`} style={{ fontWeight: 600 }}>
+                      {proj.name}
+                    </Link>
                   </td>
                   <td>{proj.semester} {proj.academic_year}</td>
-                  <td>{proj.team_formation_mode}</td>
-                  <td>{proj.total_marks}</td>
                   <td>
-                    <span className={`status-badge ${proj.status}`}>{proj.status.toUpperCase()}</span>
+                    <span style={{ textTransform: 'capitalize' }}>{proj.team_formation_mode}</span>
+                  </td>
+                  <td><strong>{proj.total_marks}</strong> pts</td>
+                  <td>
+                    <StatusBadge status={proj.status} />
                   </td>
                   <td>
-                    <Link to={`/projects/${proj.id}`}>View Project</Link>
+                    <Link to={`/projects/${proj.id}`} className="btn">
+                      View Project
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -249,12 +249,10 @@ export const TeamDetailPage: React.FC = () => {
             Project: <Link to={`/projects/${team.project_id}`}>{team.project_name}</Link> | Members: {team.member_count}
           </p>
         </div>
-        <div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <StatusBadge status={team.status} />
           {team.is_delayed && (
-            <span style={{ display: 'block', color: 'var(--danger-color)', fontSize: '11px', fontWeight: 'bold', textAlign: 'right' }}>
-              DELAYED
-            </span>
+            <StatusBadge status="delayed" />
           )}
         </div>
       </div>

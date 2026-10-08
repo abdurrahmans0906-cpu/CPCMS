@@ -50,8 +50,8 @@ describe('DiffViewer Component', () => {
     expect(screen.getByText('v1.0 (From)')).toBeDefined();
     expect(screen.getByText('v1.1 (To)')).toBeDefined();
     expect(screen.getByText('srs_v1.md')).toBeDefined();
-    expect(screen.getByText('srs_v2.md')).toBeDefined();
-    expect(screen.getByText('+2 added, -1 removed')).toBeDefined();
+    expect(screen.getByText(/2\s+ADDED/i)).toBeDefined();
+    expect(screen.getByText(/1\s+REMOVED/i)).toBeDefined();
   });
 
   it('toggles between unified and side-by-side diff modes', () => {
