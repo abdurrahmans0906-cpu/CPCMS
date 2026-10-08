@@ -15,6 +15,8 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+
 export interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: any;
 }
@@ -41,12 +43,12 @@ export async function apiRequest<T = any>(
     credentials: 'include', // Needed for refresh cookie
   };
 
-  let response = await fetch(`/api/v1${endpoint}`, config);
+  let response = await fetch(`${API_BASE}${endpoint}`, config);
 
   // If 401 and not already refreshing or logging in, attempt automatic refresh
   if (response.status === 401 && !endpoint.startsWith('/auth/login') && !endpoint.startsWith('/auth/refresh')) {
     try {
-      const refreshRes = await fetch('/api/v1/auth/refresh', {
+      const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -54,7 +56,7 @@ export async function apiRequest<T = any>(
         const refreshData = await refreshRes.json();
         setAccessToken(refreshData.access_token);
         headers.set('Authorization', `Bearer ${refreshData.access_token}`);
-        response = await fetch(`/api/v1${endpoint}`, {
+        response = await fetch(`${API_BASE}${endpoint}`, {
           ...options,
           headers,
           credentials: 'include',
